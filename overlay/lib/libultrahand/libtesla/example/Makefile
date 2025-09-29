@@ -37,15 +37,15 @@ include $(DEVKITPRO)/libnx/switch_rules
 #   of a homebrew executable (.nro). This is intended to be used for sysmodules.
 #   NACP building is skipped as well.
 #---------------------------------------------------------------------------------
-APP_TITLE	:=	NX-FanControl
-APP_VERSION :=	1.0.5+
 
-TARGET		:=	$(APP_TITLE)
+APP_TITLE			:=		Tesla Example
+APP_VERSION 	:= 		1.3.0
+
+TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-# Include libultrahand source directories
-SOURCES		:=	source lib/libultrahand/libultra/source lib/libultrahand/libtesla/source ../lib/cJSON
+SOURCES		:=	source
 DATA		:=	data
-INCLUDES	:=	include source lib/libultrahand/libultra/include lib/libultrahand/libtesla/include ../lib/libfancontrol/include ../lib/cJSON
+INCLUDES	:=	../include
 
 NO_ICON		:=  1
 
@@ -59,25 +59,12 @@ CFLAGS	:=	-g -Wall -O2 -ffunction-sections \
 
 CFLAGS	+=	$(INCLUDE) -D__SWITCH__
 
-# Enable appearance overriding
-UI_OVERRIDE_PATH := /config/NX-FanControl/
-CFLAGS += -DUI_OVERRIDE_PATH="\"$(UI_OVERRIDE_PATH)\""
-
-# For theme / wallpaper loading in GUI class method (add to project if theme does not appear)
-INITIALIZE_IN_GUI_DIRECTIVE := 1
-CFLAGS += -DINITIALIZE_IN_GUI_DIRECTIVE=$(INITIALIZE_IN_GUI_DIRECTIVE)
-
-# Disable fstream
-NO_FSTREAM_DIRECTIVE := 1
-CFLAGS += -DNO_FSTREAM_DIRECTIVE=$(NO_FSTREAM_DIRECTIVE)
-
 CXXFLAGS	:= $(CFLAGS) -fno-exceptions -std=c++20
 
 ASFLAGS	:=	-g $(ARCH)
-LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map) -Wl,--allow-multiple-definition
+LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-# Fixed library linking - removed non-existent libraries and used correct library paths
-LIBS	:= -lcurl -lz -lzzip -lmbedtls -lmbedx509 -lmbedcrypto -ljansson -lnx ../../lib/libfancontrol/lib/libfancontrol.a -lstdc++ -lm
+LIBS	:= -lnx
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -101,8 +88,7 @@ export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
 
 export DEPSDIR	:=	$(CURDIR)/$(BUILD)
 
-# Exclude test files from compilation
-CFILES		:=	$(foreach dir,$(SOURCES),$(filter-out test.c,$(notdir $(wildcard $(dir)/*.c))))
+CFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
